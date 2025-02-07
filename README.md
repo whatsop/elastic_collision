@@ -1,2 +1,1 @@
-# Elastic collision simulation made in Rust
-
+# Elastic collision simulation
