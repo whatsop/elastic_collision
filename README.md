@@ -1,10 +1,14 @@
 # Elastic collision simulation
 
-A new interesting challenge that I wanted to implement using Rust and Nannou crate.
+Implemention done using Rust and Nannou crate.
+
+The idea is simple, anywhere on the screen's window, you are able to create a ball by clicking left mouse button and control its velocity by holding the button and dragging the mouse away from it, and then release to move the Ball to the chosen direction.
 
 If you would like to try playing with this, you will need to:
 * Install Rust https://www.rust-lang.org/learn/get-started
-* i
+* Pull the repository
+* In terminal (the repository's directory on your computer) `cargo run`
+
 
 
 References used to achieve this :
