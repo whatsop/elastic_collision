@@ -5,9 +5,9 @@ Implemention done using Rust and Nannou crate.
 The idea is simple, anywhere on the screen's window, you are able to create a ball by clicking left mouse button and control its velocity by holding the button and dragging the mouse away from it, and then release to move the Ball to the chosen direction.
 
 If you would like to try playing with this, you will need to:
-* Install Rust https://www.rust-lang.org/learn/get-started
+* [Install Rust](https://www.rust-lang.org/learn/get-started)
 * Pull the repository
-* In terminal (the repository's directory on your computer) `cargo run`
+* In the terminal `cargo run`
 
 
 
