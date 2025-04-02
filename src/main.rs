@@ -14,7 +14,7 @@ fn main() {
 struct Model {
     particles: Vec<Particle>,
     velocity: f32,
-    settings: Settings,
+    mouse_data: MouseData,
     ui: Egui,
 }
 
@@ -38,14 +38,14 @@ fn model(app: &App) -> Model {
         .unwrap();
     let ui_window_ref = app.window(ui_window).unwrap();
 
-    let settings = Settings::new();
+    let settings = MouseData::new();
     let particles = Vec::new();
     let velocity = 5.0;
 
     Model {
         particles,
         velocity,
-        settings,
+        mouse_data: settings,
         ui: Egui::from_window(&ui_window_ref),
     }
 }
@@ -71,14 +71,14 @@ fn event(app: &App, model: &mut Model, event: WindowEvent) {
     match event {
         MousePressed(button) => {
             if button == MouseButton::Left {
-                model.settings.is_mouse_pressed = true;
-                model.settings.mouse_start_position = app.mouse.position();
+                model.mouse_data.is_mouse_pressed = true;
+                model.mouse_data.mouse_start_position = app.mouse.position();
             }
         }
         MouseReleased(button) => {
             if button == MouseButton::Left {
-                model.settings.is_mouse_pressed = false;
-                model.settings.mouse_end_position = app.mouse.position()
+                model.mouse_data.is_mouse_pressed = false;
+                model.mouse_data.mouse_end_position = app.mouse.position()
             }
         }
         _ => (),
@@ -90,21 +90,21 @@ fn update(app: &App, model: &mut Model, _update: Update) {
 
     let max_length_screen_size = Vec2::new(WINDOW_WIDTH as f32, WINDOW_HEIGHT as f32).length();
 
-    if model.settings.is_mouse_pressed {
-        model.settings.mouse_end_position = app.mouse.position();
+    if model.mouse_data.is_mouse_pressed {
+        model.mouse_data.mouse_end_position = app.mouse.position();
     }
 
     for particle in model.particles.iter_mut() {
-        if model.settings.is_mouse_pressed && particle.is_new {
+        if model.mouse_data.is_mouse_pressed && particle.is_new {
             // no velocity applied while mouse pressed and particle is new
             particle.velocity = Vec2::new(0.0, 0.0);
         }
 
-        if !model.settings.is_mouse_pressed && particle.is_new {
+        if !model.mouse_data.is_mouse_pressed && particle.is_new {
             particle.is_new = false;
 
             // create a direction vector from particle position to the mouse position
-            let direction = model.settings.mouse_end_position - particle.position;
+            let direction = model.mouse_data.mouse_end_position - particle.position;
 
             // create the velocity vector and remap its strength
             let strength_factor = model.velocity;
@@ -202,10 +202,10 @@ fn view(app: &App, model: &Model, frame: Frame) {
     }
 
     // draw arrow
-    if model.settings.is_mouse_pressed {
+    if model.mouse_data.is_mouse_pressed {
         draw.arrow().weight(5.0).points(
             model.particles.last().unwrap().position,
-            model.settings.mouse_end_position,
+            model.mouse_data.mouse_end_position,
         );
     };
 
@@ -236,13 +236,13 @@ fn update_ui(_app: &App, model: &mut Model) {
         });
 }
 
-struct Settings {
+struct MouseData {
     is_mouse_pressed: bool,
     mouse_start_position: Vec2,
     mouse_end_position: Vec2,
 }
 
-impl Settings {
+impl MouseData {
     fn new() -> Self {
         let is_mouse_pressed = false;
         let mouse_start_position = Vec2::default();
