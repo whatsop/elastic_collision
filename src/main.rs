@@ -1,4 +1,5 @@
 use nannou::{draw::properties::Srgba, event::WindowEvent, prelude::*};
+use nannou_egui::{egui, Egui};
 
 mod particle;
 use particle::Particle;
@@ -12,7 +13,9 @@ fn main() {
 
 struct Model {
     particles: Vec<Particle>,
+    velocity: f32,
     settings: Settings,
+    ui: Egui,
 }
 
 fn model(app: &App) -> Model {
@@ -25,12 +28,25 @@ fn model(app: &App) -> Model {
         .build()
         .unwrap();
 
+    let ui_window = app
+        .new_window()
+        .title(format!("{} controls", app.exe_name().unwrap()))
+        .size(250, 100)
+        .raw_event(raw_ui_event)
+        .view(ui_view)
+        .build()
+        .unwrap();
+    let ui_window_ref = app.window(ui_window).unwrap();
+
     let settings = Settings::new();
     let particles = Vec::new();
+    let velocity = 5.0;
 
     Model {
         particles,
+        velocity,
         settings,
+        ui: Egui::from_window(&ui_window_ref),
     }
 }
 
@@ -70,6 +86,8 @@ fn event(app: &App, model: &mut Model, event: WindowEvent) {
 }
 
 fn update(app: &App, model: &mut Model, _update: Update) {
+    update_ui(app, model);
+
     let max_length_screen_size = Vec2::new(WINDOW_WIDTH as f32, WINDOW_HEIGHT as f32).length();
 
     if model.settings.is_mouse_pressed {
@@ -89,7 +107,7 @@ fn update(app: &App, model: &mut Model, _update: Update) {
             let direction = model.settings.mouse_end_position - particle.position;
 
             // create the velocity vector and remap its strength
-            let strength_factor = 40.0;
+            let strength_factor = model.velocity;
             let velocity_strength = (direction.length() / max_length_screen_size) * strength_factor;
 
             // apply the velocity
@@ -192,6 +210,30 @@ fn view(app: &App, model: &Model, frame: Frame) {
     };
 
     draw.to_frame(app, &frame).unwrap();
+}
+
+fn raw_ui_event(_app: &App, model: &mut Model, event: &nannou::winit::event::WindowEvent) {
+    model.ui.handle_raw_event(event);
+}
+
+fn ui_view(app: &App, model: &Model, frame: Frame) {
+    let draw = app.draw();
+    draw.background().color(BLACK);
+    draw.to_frame(app, &frame).unwrap();
+
+    model.ui.draw_to_frame(&frame).unwrap();
+}
+
+fn update_ui(_app: &App, model: &mut Model) {
+    let ctx = model.ui.begin_frame();
+
+    egui::Window::new("Particle Controls")
+        .collapsible(true)
+        .show(&ctx, |ui| {
+            let velocity_slider =
+                egui::Slider::new(&mut model.velocity, 0.0..=100.0).text("Velocity");
+            ui.add(velocity_slider);
+        });
 }
 
 struct Settings {
